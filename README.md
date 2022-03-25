@@ -1,5 +1,5 @@
 # CVATHelpers
-This Repo contains files which 1)sort images and 2) the Json file[not yet uploaded] ; creating a folder of only the frames containing annotations, and an updated JSON COCO file (soon)
+This Repo contains files which 1)sort images and 2) the Json file[not yet uploaded] ; creating a folder of only the frames of video containing annotations, and an updated JSON COCO file (soon)
 
 !!Important!! CVAT Exported files contain "annotations" and "images" directories. Please
 place these files in the "annotations" folder prior to running.
