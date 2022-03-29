@@ -14,6 +14,9 @@ if __name__ == "__main__":
     if len(jsons) > 1:
         print("Too many COCO files in directory. Please only include the one for this set of video frames")
         quit()
+    if len(jsons) < 1:
+        print("COCO Json file not found. Has this program been run from inside CVAT's exported annotations folder?")
+        quit()
     
     fname = jsons[0] #name of COCO file
 
