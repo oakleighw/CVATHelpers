@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #get image no.s with litter from annotations
     frames = []
     for i in annotations:
-        frames.append(i.get('image_id'))
+        frames.append((i.get('image_id'))-1)#-1 as id's are framenumber +1
 
     #get frame image name from frame num
     templateName = 'frame_000000.PNG' #format for images outputted by CVAT
