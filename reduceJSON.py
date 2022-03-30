@@ -62,6 +62,6 @@ if __name__ == "__main__":
 
     #output new COCO JSON without redundant (non-annotated) image data
     with open('reducedCOCO.json', 'w') as f:
-        json.dump(data, f, indent= 6) #indent needs to be changed to reflect COCO
+        json.dump(data, f, indent= None) #indent needs to be changed to reflect COCO
 
 
