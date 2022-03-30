@@ -1,6 +1,6 @@
 import os
 import json
-
+import shutil
 #This file reads the directory for a coco file (json) . Then
 if __name__ == "__main__":
     #get name of json
@@ -45,6 +45,8 @@ if __name__ == "__main__":
         noLength = len(strFrame)
         frameImgName = templateName[0:-4-noLength] + strFrame + templateName[-4:]
         frameImgs.append(frameImgName)
+    
+    ###Create new COCO JSON###
 
     #find indices of redundant (non-annotated) image data
     imageListSize = len(data['images'])
@@ -53,7 +55,6 @@ if __name__ == "__main__":
         if (data['images'][i].get('file_name') not in frameImgs):
             toDelete.append(i)
 
-    
 
     #sort indices to delete to allow for 'pop'
     toDelete = sorted(toDelete, reverse=True)
@@ -64,6 +65,26 @@ if __name__ == "__main__":
     #output new COCO JSON without redundant (non-annotated) image data
     with open('reducedCOCO.json', 'w') as f:
         json.dump(data, f, indent= None) #indent needs to be changed to reflect COCO
-
+    
     print("Reworked JSON file created in folder")
 
+    ###Reduce images to only annotated ones (new folder)###
+
+    #copy images with annotations in into another folder
+    
+    if not os.path.exists('../imagesFiltered'):  #this is the folder that the images with annotations will be saved in
+        os.makedirs('../imagesFiltered')
+
+    sourceFolder = '../images'
+    destFolder = '../imagesFiltered'
+
+    #first check if folder is empty- we don't want to copy more than once!
+    if (len(os.listdir(destFolder)) != 0):
+        print('Destination Folder already contains images. \n Please delete them first!')
+        quit()
+
+    for frameN in frameImgs:
+        source = sourceFolder + '/' + frameN
+        destination = destFolder + '/' + frameN
+        if os.path.isfile(source):
+            shutil.copy(source,destination) #copy images to filtered folder

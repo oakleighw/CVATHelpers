@@ -1,8 +1,9 @@
 import os
 import json
 import shutil
-#This file reads the directory for a coco file (json) . Then
+
 if __name__ == "__main__":
+    #Read the directory for a coco file (json)
     #get name of json
     d = os.listdir()
     jsons = []
@@ -30,14 +31,14 @@ if __name__ == "__main__":
         annotations.append(i)
     f.close()
 
-    #get image no.s with litter from annotations
+    #get image no.s annotations
     frames = []
     for i in annotations:
         frames.append((i.get('image_id'))-1)#-1 as id's are framenumber +1
 
     #get frame image name from frame num
     templateName = 'frame_000000.PNG' #format for images outputted by CVAT
-    frameImgs = [] #frame images where litter has been detected
+    frameImgs = [] #frame images where annotations have been detected
 
     #create image name from frame numbers and append to frameImgs
     for frameNo in frames:
@@ -47,9 +48,9 @@ if __name__ == "__main__":
         frameImgs.append(frameImgName)
 
 
-    #copy images with litter in into another folder
+    #copy images with annotations in into another folder
     
-    if not os.path.exists('../imagesFiltered'):  #this is the folder that the images with litter will be saved in
+    if not os.path.exists('../imagesFiltered'):  #this is the folder that the images with annotations will be saved in
         os.makedirs('../imagesFiltered')
 
     sourceFolder = '../images'
