@@ -1,16 +1,26 @@
 import os
 import json
 import shutil
-#This file reads the directory for a coco file (json) . Then
+#This file reads the directory for a coco file (json).
 if __name__ == "__main__":
     #family directory to be pooled
     cwd = os.getcwd()
     orgDirs = os.listdir(cwd)
     #orgDirs = [x for x in orgDirs if x[-2:] != "py"]
-    orgDirs = [
-        r"C:\Users\Computing\Documents\annotationDump\testDir\testannotations\annotations",
-        r"C:\Users\Computing\Documents\annotationDump\testDir\testannotations2\annotations"
-    ]
+
+    #videos need to be in the format (annotations folder, images folder)
+    ###continuous dev notes###
+    #this code now pools images into one folder. need to format new Json accordingly (use dictionary to new image name?) Json creation is currently commented out
+
+    #insert parent dir here (e.g. parent/   of video 1 folder, video 2 folder)
+    parent = r"D:\datasets\greenVerges\annotationsDump\testDir2"
+
+    orgDirs = os.listdir(parent)
+    orgDirs = [(parent + "\\" + x + "\\annotations") for x in orgDirs]
+    # orgDirs = [
+    #     r"D:\datasets\greenVerges\annotationsDump\testDir2\day2\annotations",
+    #     r"D:\datasets\greenVerges\annotationsDump\testDir2\day3\annotations"
+    # ]
 
     #this will make sure every image saved has a unique image ID regardless of the directory
     globalCount = 0
@@ -34,7 +44,7 @@ if __name__ == "__main__":
             print("Skipping directory:", direc)
             continue
     
-        fname = jsons[0] #name of COCO file
+        fname = direc + '/' + jsons[0] #name of COCO file
 
         f = open (fname, 'r')
         #read file
@@ -51,6 +61,7 @@ if __name__ == "__main__":
         for i in annotations:
             frames.append((i.get('image_id'))-1)#-1 as id's are framenumber +1
 
+        print(len(frames))
         #get frame image name from frame num
         templateName = 'frame_000000.PNG' #format for images outputted by CVAT
         frameImgs = [] #frame images where annotations have been detected
@@ -78,29 +89,42 @@ if __name__ == "__main__":
         for i in toDelete:
             data['images'].pop(i)
 
+        newJson = direc + '\\' + 'reducedCOCO.json'
+
         #output new COCO JSON without redundant (non-annotated) image data
-        with open('reducedCOCO.json', 'w') as f:
-            json.dump(data, f, indent= None) #indent needs to be changed to reflect COCO
+        # with open(newJson, 'w') as f:
+        #     json.dump(data, f, indent= None) #indent needs to be changed to reflect COCO
         
-        print("Reworked JSON file created in folder")
+        # print("Reworked JSON file created in folder")
 
         ###Reduce images to only annotated ones (new folder)###
 
+        pooledPath = os.path.dirname(os.path.dirname(direc))
         #copy images with annotations in into another folder
         
-        if not os.path.exists('../pooledImages'):  #this is the folder that the images with annotations will be saved in
-            os.makedirs('../pooledImages')
+        if not os.path.exists(pooledPath + '\\pooledImages'):  #this is the folder that the images with annotations will be saved in
+            os.makedirs(pooledPath + '\\pooledImages')
 
-        sourceFolder = '../images'
-        destFolder = '../pooledImages'
+        sourceFolder = os.path.dirname(direc) + '\\images'
+        destFolder = pooledPath + '\\pooledImages'
 
         # #first check if folder is empty- we don't want to copy more than once!
         # if (len(os.listdir(destFolder)) != 0):
         #     print('Destination Folder already contains images. \n Please delete them first!')
         #     quit()
-
+        print(len(frameImgs))
+        
         for frameN in frameImgs:
+            newNoStr = str(globalCount) #new global frame number
+            newNoLength = len(newNoStr)
+
             source = sourceFolder + '/' + frameN
-            destination = destFolder + '/' + frameN
+
+            newFrameNo = templateName[0:-4-newNoLength] + newNoStr + templateName[-4:]
+            destination = destFolder + '/' + newFrameNo
+
+            # print(source)
+            # print(destination)
             if os.path.isfile(source):
                 shutil.copy(source,destination) #copy images to filtered folder
+            globalCount += 1
