@@ -12,15 +12,19 @@ These tools work with frames created in .PNG format
 place the required file(s) in the "annotations" folder prior to running.
 
 ## Reduce Frames
+#### "reduceFrames.py"
 Creates a folder "imagesFiltered" in the parent directory which contains only frames that contain litter.
 
 ## Reduce Json
+#### "reduceJSON.py"
 Creates a new JSON file using the original exported JSON. This JSON is also on one line. "Images" list data is removed for non-annotated frames. However, image IDs are not changed, but remain to match with the image IDs in the annotations list.
 
 ## Reduce CVAT
+#### "reduceCVAT.py"
 A standalone program that accomplishes both of these tasks.
 
 # Image and annotation pooling
+#### "pool_workflow.py"
 This sorts annotations and frames into ONE folder and ONE Json file. It is handy for reducing the amount of uploading into external conversion software or creating training/ testing directories.
 
 ## Pooling Instructions:
