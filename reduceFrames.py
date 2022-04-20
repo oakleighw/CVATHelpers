@@ -46,7 +46,9 @@ if __name__ == "__main__":
         noLength = len(strFrame)
         frameImgName = templateName[0:-4-noLength] + strFrame + templateName[-4:]
         frameImgs.append(frameImgName)
-
+    
+    #remove duplicates
+    frameImgs = list(set(frameImgs))
 
     #copy images with annotations in into another folder
     

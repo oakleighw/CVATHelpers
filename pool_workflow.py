@@ -187,8 +187,7 @@ if __name__ == "__main__":
     #dump new json
     newJsonName = parent + '\\' + 'pooledCOCO.json'
     with open(newJsonName, 'w') as f:
-            json.dump(newJson, f, indent= 1) #indent needs to be changed to reflect COCO #,indent = None
-
+            json.dump(newJson, f, indent= None) #indent needs to be changed to reflect COCO
     print("Reworked JSON file created in",  parent)
     print("Annotated images copied to: " + parent + "\\pooledImages")
         

@@ -46,6 +46,9 @@ if __name__ == "__main__":
         frameImgName = templateName[0:-4-noLength] + strFrame + templateName[-4:]
         frameImgs.append(frameImgName)
     
+    #remove duplicates
+    frameImgs = list(set(frameImgs))
+    
     ###Create new COCO JSON###
 
     #find indices of redundant (non-annotated) image data
