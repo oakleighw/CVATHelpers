@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #this code now pools images into one folder. need to format new Json accordingly (use dictionary to new image name?) Json creation is currently commented out
 
     #insert parent dir here (e.g. parent/   of video 1 folder, video 2 folder)
-    parent = r"D:\datasets\greenVerges\annotationsDump\testDir2"
+    parent = r"C:\Users\Computing\Documents\annotationDump\testDir"
 
     orgDirs = os.listdir(parent)
     orgDirs = [(parent + "\\" + x + "\\annotations") for x in orgDirs]
@@ -24,6 +24,11 @@ if __name__ == "__main__":
 
     #this will make sure every image saved has a unique image ID regardless of the directory
     globalCount = 0
+
+    #number of images in total, increases on every directory
+    totalImgs = 0
+
+    jsonsConnected = [] # contains jsons with items at relevant index (json 1 has images 0...N, json 2 has images N..... N+n)
 
     for direc in orgDirs:
         #get name of json
@@ -49,19 +54,19 @@ if __name__ == "__main__":
         f = open (fname, 'r')
         #read file
         data = json.loads(f.read())
+        f.close()
 
         #get annotations
         annotations = []
         for i in data['annotations']:
             annotations.append(i)
-        f.close()
+        
 
         #get image no.s with annotations
         frames = []
         for i in annotations:
             frames.append((i.get('image_id'))-1)#-1 as id's are framenumber +1
 
-        print(len(frames))
         #get frame image name from frame num
         templateName = 'frame_000000.PNG' #format for images outputted by CVAT
         frameImgs = [] #frame images where annotations have been detected
@@ -82,20 +87,56 @@ if __name__ == "__main__":
             if (data['images'][i].get('file_name') not in frameImgs):
                 toDelete.append(i)
 
-
         #sort indices to delete to allow for 'pop'
         toDelete = sorted(toDelete, reverse=True)
+
         #delete JSON image dictionaries which store info about redundant (non-annotated) image data
         for i in toDelete:
             data['images'].pop(i)
-
-        newJson = direc + '\\' + 'reducedCOCO.json'
-
-        #output new COCO JSON without redundant (non-annotated) image data
-        # with open(newJson, 'w') as f:
-        #     json.dump(data, f, indent= None) #indent needs to be changed to reflect COCO
         
-        # print("Reworked JSON file created in folder")
+        #dictionary to update annotations later
+        idToNew = {}
+
+        count = totalImgs + 1 
+
+        #change id number ('id' in 'images')
+        for i in data['images']:
+            old = i['id']
+            i['id'] = count
+            idToNew[old] = i['id']
+            count += 1
+
+
+        #create new frame names
+        newFrameImgs = [] #frame images where annotations have been detected, with new indexing
+        count = totalImgs
+        #create image name from frame numbers and append to frameImgs
+        for frameNo in frames: # incorrect
+            strFrame = str(count)
+            noLength = len(strFrame)
+            frameImgName = templateName[0:-4-noLength] + strFrame + templateName[-4:]
+            newFrameImgs.append(frameImgName)
+            count +=1
+
+        print("debug1:", len(data['images']))
+        j = 0
+        #change frame names in json
+        for i in data['images']:
+            i['file_name'] = newFrameImgs[j]
+            j += 1
+
+        count = totalImgs + 1
+        #change image id ('image_id' in annotations)
+        for i in data['annotations']:
+            i['image_id'] = idToNew.get(i['image_id'])
+            count += 1
+
+        #increment totalImgs
+        totalImgs += len(data['images'])
+
+        #add new formed json to list
+        
+        jsonsConnected.append(data)
 
         ###Reduce images to only annotated ones (new folder)###
 
@@ -112,19 +153,45 @@ if __name__ == "__main__":
         # if (len(os.listdir(destFolder)) != 0):
         #     print('Destination Folder already contains images. \n Please delete them first!')
         #     quit()
-        print(len(frameImgs))
-        
-        for frameN in frameImgs:
-            newNoStr = str(globalCount) #new global frame number
-            newNoLength = len(newNoStr)
+        #print("len(frameImgs))   error here
+        for i in range(0,len(frameImgs)):
 
-            source = sourceFolder + '/' + frameN
+            source = sourceFolder + '/' + frameImgs[i]
 
-            newFrameNo = templateName[0:-4-newNoLength] + newNoStr + templateName[-4:]
+            newFrameNo = newFrameImgs[i]
             destination = destFolder + '/' + newFrameNo
 
             # print(source)
             # print(destination)
             if os.path.isfile(source):
                 shutil.copy(source,destination) #copy images to filtered folder
-            globalCount += 1
+        globalCount += 1
+
+    #get total images and annotations array of dictionaries
+    imgs = []
+    annots = []
+    
+    for i in range(0, len(jsonsConnected)):
+        print(i, "amount images:", len(jsonsConnected[i]['images']))
+        print(i, "amount annotations:", len(jsonsConnected[i]['annotations']))
+        imgs += jsonsConnected[i]['images']
+        annots += jsonsConnected[i]['annotations']
+
+    print(totalImgs)
+    print(len(imgs))
+    #use first json as template for joinedJsons
+    newJson = jsonsConnected[0]
+    newJson['images'] = imgs
+    newJson['annotations'] = annots
+
+    print(len(newJson['images']))
+    print(len(newJson['annotations']))
+    #dump new json
+    newJsonName = parent + '\\' + 'reducedCOCO.json'
+    with open(newJsonName, 'w') as f:
+            json.dump(newJson, f, indent= 1) #indent needs to be changed to reflect COCO #,indent = None
+
+    print("Reworked JSON file created in folder")
+        
+
+
