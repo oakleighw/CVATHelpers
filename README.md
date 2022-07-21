@@ -4,7 +4,6 @@ When annotating raw video, there may be many frames which do not contain annotat
 This Repo contains files which 
 1) Sorts frames such that only the annotated remain (in a new folder)
 2) Creates an updated JSON COCO file
-3) ~~Organises and filters annotations; pooling them into one folder and file~~ [Removed due to Error]
 
 These tools work with frames created in .PNG format
 # Tools
